@@ -105,6 +105,22 @@ char char_to_lower(char C)
 	return C;
 }
 
+symbol symbol_from_string(symbol_table* tbl, const char* string, size_t len)
+{
+	//TODO: remove memcpy/alloc
+	char* string_buf = new char[len+1];
+	
+	strncpy(string_buf, string, len);
+	
+	string_buf[len] = '\0';
+
+	symbol ret = symbol_from_string(tbl, string_buf);
+
+	delete [] string_buf;
+
+	return ret;
+}
+
 symbol symbol_from_string(symbol_table* tbl, const char* string)
 {
 	symbol_node* Curr = tbl->Root;

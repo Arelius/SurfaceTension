@@ -13,7 +13,8 @@ static const dynamic_type TypeList[DT_Invalid] =
 	{DT_Symbol, sizeof(symbol)},
 	{DT_Int, sizeof(int)},
 	{DT_Real, sizeof(float)},
-	{DT_String, invalid_size}
+	{DT_String, invalid_size},
+	{DT_Char, sizeof(char)}
 };
 
 const dynamic_type* get_type(dynamic_types typeId)
@@ -43,6 +44,11 @@ pointer ploy_alloc(const dynamic_type* type, size_t size)
 pointer ploy_alloc(const dynamic_type* type)
 {
 	return ploy_alloc(type, invalid_size);
+}
+
+void ploy_free(pointer P)
+{
+	free(P);
 }
 
 dynamic_types get_type_id(pointer P)
@@ -78,6 +84,18 @@ pointer create_pair(pointer car, pointer cdr)
 	return ret;
 }
 
+pointer pair_car(pointer P)
+{
+	assert(is_type(P, DT_Pair));
+	return get_pair(P)->_car;
+}
+
+pointer pair_cdr(pointer P)
+{
+	assert(is_type(P, DT_Pair));
+	return get_pair(P)->_cdr;
+}
+
 symbol* get_symbol(pointer P)
 {
 	assert(is_type(P, DT_Symbol));
@@ -89,6 +107,15 @@ pointer create_symbol(symbol_table* tbl, const char* sym)
 	pointer ret = ploy_alloc(get_type(DT_Symbol));
 
 	*get_symbol(ret) = symbol_from_string(tbl, sym);
+
+	return ret;
+}
+
+pointer create_symbol(symbol_table* tbl, const char* sym, size_t len)
+{
+	pointer ret = ploy_alloc(get_type(DT_Symbol));
+
+	*get_symbol(ret) = symbol_from_string(tbl, sym, len);
 
 	return ret;
 }
@@ -123,10 +150,32 @@ pointer create_real(float f)
 	return ret;
 }
 
-char** get_string(pointer P)
+char* get_char(pointer P)
+{
+	assert(is_type(P, DT_Char));
+	return (char*)get_value(P);
+}
+
+pointer create_char(char c)
+{
+	pointer ret = ploy_alloc(get_type(DT_Char));
+	
+	*get_char(ret) = c;
+
+	return ret;
+}
+
+char* get_string(pointer P)
 {
 	assert(is_type(P, DT_String));
-	return (char**)get_value(P);
+	return (char*)get_value(P);
+}
+
+pointer alloc_string(size_t len)
+{
+	pointer ret = ploy_alloc(get_type(DT_String), len+1);
+	(get_string(ret))[0] = '\0'; // Unneeded if everywhere initializes it directlly.
+	return ret;
 }
 
 pointer create_string(const char* str)
@@ -138,9 +187,21 @@ pointer create_string(const char* str, size_t len)
 {
 	pointer ret = ploy_alloc(get_type(DT_String), len+1);
 	
-	strncpy(*get_string(ret), str, len);
+	strncpy(get_string(ret), str, len);
 	
-	(*get_string(ret))[len+1] = '\0'; // not strictly nessacary while we are zeroing the mem, but for if/when we remove it.
+	(get_string(ret))[len+1] = '\0'; // not strictly nessacary while we are zeroing the mem, but for if/when we remove it.
 	
 	return ret;
+}
+
+void destroy_list(pointer P)
+{
+	if(is_type(P, DT_Pair))
+	{
+		if(pair_car(P) != NIL)
+			destroy_list(pair_car(P));
+		if(pair_cdr(P) != NIL)
+			destroy_list(pair_cdr(P));
+	}
+	ploy_free(P);
 }

@@ -8,9 +8,12 @@
 #include "input.h"
 #include "player.h"
 #include <SDL.h>
+#include "ploy/symbol.h"
 
 
 using namespace std;
+
+symbol_table* g_symbol_table;
 
 GLvoid DrawScene();
 void OnTimer(int value);
@@ -41,6 +44,8 @@ void DestroyPhysics()
 
 int main(int argc, char* argv[])
 {
+	g_symbol_table = init_symbol_table();
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(1280, 720);
@@ -83,6 +88,8 @@ int main(int argc, char* argv[])
 	scheme_deinit(scheme_vm);
 
 	SDL_Quit();
+
+	destroy_symbol_table(g_symbol_table);
 }
 
 GLvoid DrawScene()

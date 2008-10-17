@@ -1,6 +1,7 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 #include <cstring>
+#include "symbol.h"
 
 #define invalid_size -1
 
@@ -32,12 +33,6 @@ struct pair
 	pointer _cdr;
 };
 
-struct symbol
-{
-	int Id;
-	symbol(int i) : Id(i)
-	{}
-};
 
 const dynamic_type* get_type(dynamic_types typeId);
 

@@ -1,4 +1,5 @@
 #include "systemmanager.h"
+#include <assert.h>
 
 struct GameSystem
 {
@@ -15,6 +16,7 @@ struct SystemManager
 	GameSystem** LastSystemSlot;
 	GameSystem* RunSystem;
 	run_func RunFunc;
+	symbol_table* symbols;
 };
 
 void declare_system(SystemManager* SM, symbol name, init_func init, destroy_func destroy)
@@ -39,6 +41,7 @@ void set_run_system(SystemManager* SM, symbol name, run_func run)
 		if(System->Name == name)
 		{
 			SM->RunSystem = System;
+			SM->RunFunc = run;
 			return;
 		}
 		System = System->NextSystem;
@@ -47,14 +50,17 @@ void set_run_system(SystemManager* SM, symbol name, run_func run)
 
 void system_manager_run(SystemManager* SM)
 {
-	SM->RunFunc(SM->RunSystem);
+	SM->RunFunc(SM->RunSystem->SystemPointer);
 }
 
-SystemManager* create_system_manager()
+SystemManager* create_system_manager(symbol_table* tbl)
 {
 	SystemManager* SM = new SystemManager();
 	SM->FirstSystem = NULL;
 	SM->LastSystemSlot = &SM->FirstSystem;
+	SM->RunSystem = NULL;
+	SM->symbols = tbl;
+	return SM;
 }
 
 // Doesn't destroy the systems.
@@ -89,4 +95,43 @@ void system_manager_shutdown_systems(SystemManager* SM)
 		System->SystemPointer = NULL;
 		System = System->NextSystem;
 	}
+}
+
+GameSystem* system_manager_find(SystemManager* SM, const char* Sys)
+{
+	GameSystem* System = SM->FirstSystem;
+	symbol system_symbol = symbol_from_string(SM->symbols, Sys);
+	while(System)
+	{
+		if(System->Name == system_symbol)
+			return System;
+		System = System->NextSystem;
+	}
+	return NULL;
+}
+
+// This needs to ensure it's been initialized already
+void* system_manager_require(SystemManager* SM, const char* Sys)
+{
+	GameSystem* System = system_manager_find(SM, Sys);
+	assert(System);
+	return System->SystemPointer;
+}
+
+void* system_manager_request(SystemManager* SM, const char* Sys)
+{
+	GameSystem* System = system_manager_find(SM, Sys);
+	if(System)
+		return System->SystemPointer;
+	return NULL;
+}
+
+symbol_table* system_manager_get_symbol_table(SystemManager* SM)
+{
+	return SM->symbols;
+}
+
+symbol system_manager_symbol(SystemManager* SM, const char* str)
+{
+	return symbol_from_string(SM->symbols, str);
 }

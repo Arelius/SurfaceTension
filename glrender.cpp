@@ -3,13 +3,25 @@
 #include "systemmanager.h"
 #include <OpenGL/gl.h>
 
+struct render_subsystem
+{
+	render_system* system;
+	subsystem_render render_func;
+	render_subsystem* next;
+	
+};
+
 struct gl_render
 {
+	render_subsystem* subsystem_list;
+	render_subsystem** subsystem_next;
 };
 
 void* init_gl_render_system(SystemManager* SM)
 {
 	gl_render* renderer = new gl_render();
+	renderer->subsystem_list = NULL;
+	renderer->subsystem_next = &renderer->subsystem_list;
 	glut_system* glut = (glut_system*)system_manager_require(SM, "GLUT");
 	glut_system_set_renderer(glut, renderer);
 
@@ -45,6 +57,13 @@ void gl_render_do_render(gl_render* renderer)
 	//gluOrtho2D(0, CameraWidth, CameraWidth*CameraAspect, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	render_subsystem* curr_render_system = renderer->subsystem_list;
+	while(curr_render_system)
+	{
+		curr_render_system->render_func(renderer, curr_render_system->system);
+		curr_render_system = curr_render_system->next;
+	}
+
 	// Do render of registered renderables.
 	//RenderPlayer(MainPlayer);
 
@@ -53,5 +72,14 @@ void gl_render_do_render(gl_render* renderer)
 
 void declare_gl_render_system(SystemManager* SM)
 {
-	declare_system(SM, system_manager_symbol(SM, "render"), init_gl_render_system, destroy_gl_render_system);
+	declare_system(SM, system_manager_symbol(SM, "glrender"), init_gl_render_system, destroy_gl_render_system);
+}
+
+void gl_render_register_render_system(gl_render* renderer, render_system* system, subsystem_render render_func)
+{
+	render_subsystem* new_link = new render_subsystem();
+	new_link->system = system;
+	new_link->render_func = render_func;
+	*renderer->subsystem_next = new_link;
+	renderer->subsystem_next = &new_link->next;
 }

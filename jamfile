@@ -3,10 +3,10 @@ DEBUGGING_SYMBOLS = YES ;
 LINKFLAGS = -g -framework OpenGL -framework GLUT -framework SDL -framework IOKit -L../Box2D/Build/Xcode/build/Debug -lBox2D `sdl-config --cflags` ;
 C++FLAGS = -g ;
 
-HDRS = ../tinyscheme/ ../Box2D/Include ../Box2D/Examples/TestBed/Framework/ /Library/Frameworks/SDL.framework/Headers/ ;
+HDRS = ../tinyscheme/ ../Box2D/Include ../Box2D/Examples/TestBed/Framework/ /Library/Frameworks/SDL.framework/Headers/ ../ ;
 
 # This is just for tinyscheme, remove when replaced with ploy.
 CC = g++ ;
 CCFLAGS = -g -I../tinyscheme/ -DUSE_STRLWR=1 -DOSX -DSTANDALONE=0 -DUSE_DL=0 ;
 
-Main SurfaceTension : main.cpp ../tinyscheme/scheme.c ../Box2D/Examples/TestBed/Framework/Render.cpp script.cpp input.cpp player.cpp glrender.cpp systemmanager.cpp coresystems.cpp ploy/symbol.cpp ;
+Main SurfaceTension : main.cpp ../tinyscheme/scheme.c ../Box2D/Examples/TestBed/Framework/Render.cpp script.cpp input.cpp player.cpp glrender.cpp systemmanager.cpp coresystems.cpp ../ploy/symbol.cpp vrender.cpp ;

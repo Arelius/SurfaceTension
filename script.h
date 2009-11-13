@@ -5,10 +5,11 @@
 #include <box2d.h>
 
 extern scheme* scheme_vm;
+struct SystemManager;
 
-void scheme_load_file_name(scheme* sc, char* file);
+void scheme_load_file_name(scheme* sc, const char* file);
 b2Vec2 GetVec2(pointer p);
-void InitScheme();
+void declare_script_system(SystemManager* SM);
 
 void RegisterSchemeFunc(scheme* sc, foreign_func func, const char* Docs);
 

@@ -3,13 +3,12 @@
 #include "game.h"
 #include "player.h"
 #include "input.h"
+#include "systemmanager.h"
 
 //For Box2D Debug Draw
 #include <Render.h>
 
-scheme* scheme_vm;
-
-void scheme_load_file_name(scheme* sc, char* file)
+void scheme_load_file_name(scheme* sc, const char* file)
 {
 	FILE* script_file = fopen(file, "r");
 	scheme_load_file(sc, script_file);
@@ -183,9 +182,9 @@ void RegisterSchemeFunc(scheme* sc, foreign_func func, const char* Docs)
 	//scheme_define(sc, sc->global_env, car(DocList), mk_foreign_func(sc, func));
 }
 
-void InitScheme()
+void* init_script_system(SystemManager* SM)
 {
-	scheme_vm = scheme_init_new();
+	scheme* scheme_vm = scheme_init_new();
 	scheme_define(scheme_vm, scheme_vm->global_env, mk_symbol(scheme_vm, "init-world"), mk_foreign_func(scheme_vm, &InitPhysicsWorld));
 	//RegisterSchemeFunc(scheme_vm, &MakeVec2, MakeVec2Docs);
 	scheme_define(scheme_vm, scheme_vm->global_env, mk_symbol(scheme_vm, "make-vec2"), mk_foreign_func(scheme_vm, &MakeVec2));
@@ -200,4 +199,16 @@ void InitScheme()
 	scheme_define(scheme_vm, scheme_vm->global_env, mk_symbol(scheme_vm, "make-fluid-box"), mk_foreign_func(scheme_vm, &MakeFluidBox));
 	//RegisterSchemeFunc(scheme_vm, &InitPlayer, InitPlayerDocs);
 	scheme_define(scheme_vm, scheme_vm->global_env, mk_symbol(scheme_vm, "init-player"), mk_foreign_func(scheme_vm, &InitPlayer));
+
+	return scheme_vm;
+}
+
+void destroy_script_system(void* System)
+{
+	scheme_deinit((scheme*)System);
+}
+
+void declare_script_system(SystemManager* SM)
+{
+	declare_system(SM, system_manager_symbol(SM, "script"), init_script_system, destroy_script_system);
 }

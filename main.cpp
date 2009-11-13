@@ -22,19 +22,8 @@ symbol_table* g_symbol_table;
 GLvoid DrawScene();
 void OnTimer(int value);
 
-b2World* PhysicsWorld;
-
 PlayerInput* LocalPlayerInput;
 PlayerInfo* MainPlayer;
-
-Vector CameraFocusLocation;
-float CameraAspect;
-float CameraWidth;
-float CameraApproach;
-float FluidRadius;
-float FluidMass;
-float FluidFriction;
-
 
 void DestroyPhysics()
 {
@@ -53,16 +42,18 @@ int main(int argc, char* argv[])
 	declare_glut_system(SM);
 	declare_gl_render_system(SM);
 	declare_vector_render_system(SM);
+	declare_script_system(SM);
 	set_glut_system_run(SM);
 	
 	system_manager_init_systems(SM);
 	system_manager_run(SM);
+
+
 	system_manager_shutdown_systems(SM);
 	destroy_system_manager(SM);
 	
 
 
-	InitScheme();
 	scheme_load_file_name(scheme_vm, "player.scm");
 	scheme_load_file_name(scheme_vm, "Entry.scm");
 
@@ -79,21 +70,16 @@ int main(int argc, char* argv[])
 	if(PhysicsWorld)
 		DestroyPhysics();
 
-	scheme_deinit(scheme_vm);
-
 
 	destroy_symbol_table(g_symbol_table);
 }
 
 GLvoid DrawScene()
 {
-	
-
 
 }
 
 void OnTimer(int)
 {
-
 	glutTimerFunc(20, OnTimer, 1);
 }

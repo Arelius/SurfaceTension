@@ -25,7 +25,7 @@ void InitPlayer(PlayerInfo* Player, Vector Location)
 	b2CircleDef shape;
 	shape.radius = Player->CollisionRadius;
 	shape.density = 1.0f;
-	Player->State.Body->CreateShape(&shape);
+	Player->State.Body->CreateFixture(&shape);
 
 	Player->State.Body->SetMassFromShapes();
 	Player->State.Body->AllowSleeping(false);
@@ -59,7 +59,7 @@ void UpdatePlayer(float DeltaTime, PlayerInfo* Player)
 	
 	Vector Velocity = Player->State.Body->GetLinearVelocity();
 	
-	Velocity += Thrust * DeltaTime;
+	Velocity += DeltaTime * Thrust;
 	
 	Velocity.x = std::max(std::min(Velocity.x, Player->MaxSpeed), -Player->MaxSpeed);
 
@@ -74,14 +74,16 @@ void UpdatePlayer(float DeltaTime, PlayerInfo* Player)
 		//if(abs(Player->State.Velocity.x) <= StopSpeed && bBrake)
 		//	Player->State.Velocity.x = 0.0f;
 		
-		Vector GravityDir = PhysicsWorld->GetGravity().Normal();
+		Vector GravityDir = PhysicsWorld->GetGravity();
+
+        GravityDir.Normalize();
 
 		if(b2Dot(Player->State.Velocity, PhysicsWorld->GetGravity()) > 0.0f)
-			Player->State.Velocity -= b2Dot(Player->State.Velocity, PhysicsWorld->GetGravity()) * GravityDir * Player->State.Velocity.Length();
+			Player->State.Velocity -= Player->State.Velocity.Length() * b2Dot(Player->State.Velocity, PhysicsWorld->GetGravity()) * GravityDir;
 	}
 	else if(false)
 	{
-		Player->State.Velocity += PhysicsWorld->GetGravity() * DeltaTime;
+		Player->State.Velocity += DeltaTime * PhysicsWorld->GetGravity();
 	}
 
 	Vector PlayerCOM = Player->State.Body->GetWorldCenter();
@@ -91,7 +93,9 @@ void UpdatePlayer(float DeltaTime, PlayerInfo* Player)
 
 	if(bCanJump && Player->State.bJump)
 	{
-		Vector JumpForce = PhysicsWorld->GetGravity().Normal() * -1.0f * Player->JumpThrust;
+		Vector JumpForce = PhysicsWorld->GetGravity();
+        JumpForce.Normalize();
+        JumpForce *= -1.0f * Player->JumpThrust;
 		Player->State.Body->ApplyForce(JumpForce, PlayerCOM);
 	}
 	Player->State.Location = Player->State.Body->GetWorldCenter();

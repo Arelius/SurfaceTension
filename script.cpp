@@ -88,7 +88,7 @@ pointer MakeFluidBox(scheme* sc, pointer p)
 		{
 			bdyDef.position.Set(C1.x + WidthStep * w, C1.y + HeightStep * h);
 			b2Body* Body = PhysicsWorld->CreateBody(&bdyDef);
-			Body->CreateShape(&shpDef);
+			Body->CreateFixture(&shpDef);
 			Body->SetMassFromShapes();
 			
 		}
@@ -114,7 +114,7 @@ pointer MakeStaticBox(scheme* sc, pointer p)
 	b2PolygonDef shp;
 	shp.SetAsBox(rvalue(pair_car(pair_cdr(p))), rvalue(pair_car(pair_cdr(pair_cdr(p)))));
 	
-	bdy->CreateShape(&shp);
+	bdy->CreateFixture(&shp);
 
 	return sc->NIL;
 	

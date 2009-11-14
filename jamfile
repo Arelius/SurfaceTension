@@ -1,6 +1,6 @@
 LINK = g++ ;
 DEBUGGING_SYMBOLS = YES ;
-LINKFLAGS = -g -framework OpenGL -framework GLUT -framework SDL -framework IOKit -L../Box2D/Build/Xcode/build/Debug -lBox2D `sdl-config --cflags` ;
+LINKFLAGS = -g -framework OpenGL -framework GLUT -framework IOKit -L../Box2D/Build/Xcode/build/Release -lBox2D `sdl-config --cflags` `sdl-config --libs` ;
 C++FLAGS = -g ;
 
 HDRS = ../tinyscheme/ ../Box2D/Include ../Box2D/Examples/TestBed/Framework/ /Library/Frameworks/SDL.framework/Headers/ ../ ;

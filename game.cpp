@@ -1,4 +1,5 @@
 #include "game.h"
+#include "2dtypes.h"
 
 b2World* PhysicsWorld;
 

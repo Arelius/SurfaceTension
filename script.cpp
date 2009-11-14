@@ -8,6 +8,8 @@
 //For Box2D Debug Draw
 #include <Render.h>
 
+scheme* scheme_vm;
+
 void scheme_load_file_name(scheme* sc, const char* file)
 {
 	FILE* script_file = fopen(file, "r");

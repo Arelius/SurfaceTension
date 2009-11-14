@@ -1,5 +1,6 @@
 #ifndef _GAME_H_
 #define _GAME_H_
+#include <Box2D.h>
 
 // Config vars
 

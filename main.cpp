@@ -22,9 +22,6 @@ symbol_table* g_symbol_table;
 GLvoid DrawScene();
 void OnTimer(int value);
 
-PlayerInput* LocalPlayerInput;
-PlayerInfo* MainPlayer;
-
 void DestroyPhysics()
 {
 	delete PhysicsWorld;
@@ -46,18 +43,12 @@ int main(int argc, char* argv[])
 	set_glut_system_run(SM);
 	
 	system_manager_init_systems(SM);
-	system_manager_run(SM);
-
-
-	system_manager_shutdown_systems(SM);
-	destroy_system_manager(SM);
-	
-
 
 	scheme_load_file_name(scheme_vm, "player.scm");
 	scheme_load_file_name(scheme_vm, "Entry.scm");
 
 	LocalPlayerInput = InitPlayerInput();
+	system_manager_run(SM);
 
 	//InitPhysics();
 
@@ -69,6 +60,9 @@ int main(int argc, char* argv[])
 
 	if(PhysicsWorld)
 		DestroyPhysics();
+
+	system_manager_shutdown_systems(SM);
+	destroy_system_manager(SM);
 
 
 	destroy_symbol_table(g_symbol_table);

@@ -25,6 +25,7 @@ struct PlayerInfo
 	PlayerState State;
 };
 
+extern PlayerInfo* MainPlayer;
 extern float GroundCoefficient;
 
 PlayerInfo* InitPlayerInfo();

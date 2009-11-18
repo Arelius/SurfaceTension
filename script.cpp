@@ -186,7 +186,7 @@ void RegisterSchemeFunc(scheme* sc, foreign_func func, const char* Docs)
 
 void* init_script_system(SystemManager* SM)
 {
-	scheme* scheme_vm = scheme_init_new();
+	scheme_vm = scheme_init_new();
 	scheme_define(scheme_vm, scheme_vm->global_env, mk_symbol(scheme_vm, "init-world"), mk_foreign_func(scheme_vm, &InitPhysicsWorld));
 	//RegisterSchemeFunc(scheme_vm, &MakeVec2, MakeVec2Docs);
 	scheme_define(scheme_vm, scheme_vm->global_env, mk_symbol(scheme_vm, "make-vec2"), mk_foreign_func(scheme_vm, &MakeVec2));

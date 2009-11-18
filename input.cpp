@@ -7,6 +7,8 @@
 
 using namespace std;
 
+PlayerInput* LocalPlayerInput;
+
 struct InputSymIndexMap
 {
 	const char* Name;

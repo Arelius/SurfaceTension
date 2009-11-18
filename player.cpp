@@ -7,6 +7,8 @@
 
 float GroundCoefficient;
 
+PlayerInfo* MainPlayer;
+
 PlayerInfo* InitPlayerInfo()
 {
 	return new PlayerInfo();

@@ -16,6 +16,8 @@ enum ButtonInputs
 
 struct PlayerInput;
 
+extern PlayerInput* LocalPlayerInput;
+
 PlayerInput* InitPlayerInput();
 void DestroyPlayerInput(PlayerInput* Input);
 void UpdateInput(PlayerInput* Input);

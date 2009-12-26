@@ -18,6 +18,7 @@ struct gl_render
 {
 	render_subsystem* subsystem_list;
 	render_subsystem** subsystem_next;
+    Camera2D* view_camera;
 };
 
 void* init_gl_render_system(SystemManager* SM)
@@ -27,6 +28,7 @@ void* init_gl_render_system(SystemManager* SM)
 	renderer->subsystem_next = &renderer->subsystem_list;
 	glut_system* glut = (glut_system*)system_manager_require(SM, "GLUT");
 	glut_system_set_renderer(glut, renderer);
+    renderer->view_camera = (Camera2D*)system_manager_require(SM, "camera");
 
 	glShadeModel(GL_SMOOTH);
 	glClearColor(0.35f, 0.94f, 1.0f, 0.5f);
@@ -50,15 +52,17 @@ void gl_render_do_render(gl_render* renderer)
 	glLoadIdentity();
 
 	// Camera System.
-	Vector DeltaCamera = MainPlayer->State.Location - CameraFocusLocation;
-	DeltaCamera *= DeltaCamera.Length()*CameraApproach/CameraWidth;
-	CameraFocusLocation += DeltaCamera;
+	Vector DeltaCamera = MainPlayer->State.Location - renderer->view_camera->FocusLocation;
+	DeltaCamera *= DeltaCamera.Length()*renderer->view_camera->Approach/renderer->view_camera->Width;
+	renderer->view_camera->FocusLocation += DeltaCamera;
 
-	float CameraHeight = CameraWidth*CameraAspect;
-	glOrtho(CameraFocusLocation.x-(CameraWidth/2.0f), CameraFocusLocation.x+(CameraWidth/2.0f), CameraFocusLocation.y-(CameraHeight/2.0f), CameraFocusLocation.y+(CameraHeight/2.0f), 0.0f, 2.0f);
-	glScalef(1.0f/CameraWidth, 1.0f/(CameraWidth*CameraAspect), 1.0);
-	glOrtho(0, CameraWidth, CameraWidth*CameraAspect, 0, -1, 1);
+	float CameraHeight = renderer->view_camera->Width*renderer->view_camera->Aspect;
+	glOrtho(renderer->view_camera->FocusLocation.x-(renderer->view_camera->Width/2.0f), renderer->view_camera->FocusLocation.x+(renderer->view_camera->Width/2.0f), renderer->view_camera->FocusLocation.y-(CameraHeight/2.0f), renderer->view_camera->FocusLocation.y+(CameraHeight/2.0f), 0.0f, 2.0f);
+	glScalef(1.0f/renderer->view_camera->Width, 1.0f/(renderer->view_camera->Width*renderer->view_camera->Aspect), 1.0);
+	glOrtho(0, renderer->view_camera->Width, renderer->view_camera->Width*renderer->view_camera->Aspect, 0, -1, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glOrtho(0, 255, 255, 0, -1, 1);
 
 	render_subsystem* curr_render_system = renderer->subsystem_list;
 	while(curr_render_system)
@@ -68,7 +72,7 @@ void gl_render_do_render(gl_render* renderer)
 	}
 
 	// Do render of registered renderables.
-	//RenderPlayer(MainPlayer);
+	RenderPlayer(MainPlayer);
 
 	glColor3f(1.0f, 0.0f, 0.0f);
 }

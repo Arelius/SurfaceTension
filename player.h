@@ -1,9 +1,7 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
-#include <Box2D.h>
 #include "2dtypes.h"
-typedef b2Vec2 Vector;
 
 struct PlayerState
 {

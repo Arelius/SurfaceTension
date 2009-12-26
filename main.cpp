@@ -12,6 +12,7 @@
 #include "systemmanager.h"
 #include "coresystems.h"
 #include "glrender.h"
+#include "camera.h"
 #include "vrender.h"
 
 
@@ -37,6 +38,7 @@ int main(int argc, char* argv[])
 	declare_sdl_system(SM);
 	declare_tick_system(SM);
 	declare_glut_system(SM);
+	declare_2D_camera_system(SM);
 	declare_gl_render_system(SM);
 	declare_vector_render_system(SM);
 	declare_script_system(SM);

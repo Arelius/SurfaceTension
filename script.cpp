@@ -4,11 +4,17 @@
 #include "player.h"
 #include "input.h"
 #include "systemmanager.h"
+#include "camera.h"
 
 //For Box2D Debug Draw
 #include <Render.h>
 
 scheme* scheme_vm;
+
+struct script_game
+{
+	Camera2D* camera;
+};
 
 void scheme_load_file_name(scheme* sc, const char* file)
 {
@@ -100,9 +106,11 @@ pointer MakeFluidBox(scheme* sc, pointer p)
 pointer InitCamera(scheme* sc, pointer p)
 {
 	// (init-camera camera-width aspect-ratio, approach)
-	CameraWidth = rvalue(pair_car(p));
-	CameraAspect = rvalue(pair_car(pair_cdr(p)));
-	CameraApproach = rvalue(caddr(p));
+
+	Camera2D* camera = ((script_game*)scheme_get_external_data(sc))->camera;
+	camera->Width = rvalue(pair_car(p));
+	camera->Aspect = rvalue(pair_car(pair_cdr(p)));
+	camera->Approach = rvalue(caddr(p));
 }
 
 pointer MakeStaticBox(scheme* sc, pointer p)
@@ -173,7 +181,8 @@ pointer InitPlayer(scheme* sc, pointer p)
 {
 	b2Vec2 Loc = GetVec2(pair_car(p));
 	InitPlayer(MainPlayer, Loc);
-	CameraFocusLocation = Loc;
+	Camera2D* camera = ((script_game*)scheme_get_external_data(sc))->camera;
+	camera->FocusLocation = Loc;
 	return sc->NIL;
 }
 
@@ -187,6 +196,10 @@ void RegisterSchemeFunc(scheme* sc, foreign_func func, const char* Docs)
 void* init_script_system(SystemManager* SM)
 {
 	scheme_vm = scheme_init_new();
+	script_game* sgame = new script_game();
+	sgame->camera = (Camera2D*)system_manager_request(SM, "camera");
+	scheme_set_external_data(scheme_vm, sgame);
+
 	scheme_define(scheme_vm, scheme_vm->global_env, mk_symbol(scheme_vm, "init-world"), mk_foreign_func(scheme_vm, &InitPhysicsWorld));
 	//RegisterSchemeFunc(scheme_vm, &MakeVec2, MakeVec2Docs);
 	scheme_define(scheme_vm, scheme_vm->global_env, mk_symbol(scheme_vm, "make-vec2"), mk_foreign_func(scheme_vm, &MakeVec2));
@@ -207,6 +220,7 @@ void* init_script_system(SystemManager* SM)
 
 void destroy_script_system(void* System)
 {
+	delete (script_game*)scheme_get_external_data((scheme*) System);
 	scheme_deinit((scheme*)System);
 }
 
